@@ -1,0 +1,28 @@
+{
+  "name": "atencionformulario",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"vite\" \"node src/backend/server.js\"",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.11.4",
+    "vue": "^3.5.12",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
+    "concurrently": "^7.6.0",
+    "sass": "^1.80.5",
+    "vite": "^5.4.10"
+  }
+}

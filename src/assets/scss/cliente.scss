@@ -1,0 +1,101 @@
+/* Contenedor principal del formulario */
+
+.registro-cliente-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
+/* Barra de navegación */
+
+.registro-cliente-navbar {
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: #042940;
+    max-width: 100%;
+    height: auto;
+}
+
+.registro-cliente-navbar img {
+    max-width: 200px;
+    height: auto;
+}
+
+
+/* Título del formulario */
+
+.registro-cliente h2 {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #042940;
+    /* Color principal */
+}
+
+
+/* Estilo de los labels y inputs */
+
+.registro-cliente label {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #333;
+    display: block;
+}
+
+.registro-cliente input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+
+/* Estilo para inputs al hacer foco */
+
+.registro-cliente input:focus {
+    border-color: #042940;
+}
+
+
+/* Contenedor de botones de acción */
+
+.registro-cliente .acciones-finales {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+
+/* Estilo de los botones */
+
+.registro-cliente button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #042940;
+    /* Azul oscuro para todos los botones */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+
+/* Hover para todos los botones */
+
+.registro-cliente button:hover {
+    background-color: #8d8d8d;
+    /* Color plomo */
+}
