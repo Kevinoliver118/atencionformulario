@@ -1,11 +1,16 @@
-// backend/routes/clienteRoutes.js
-const express = require('express');
+// src/backend/routes/clienteRoutes.js
+import express from 'express';
+import { createCliente, getCliente, getClientes } from '../controllers/clienteController.js';
+
 const router = express.Router();
-const clienteController = require('../controllers/clienteController');
 
-// Obtener todos los clientes
-router.get('/clientes', clienteController.obtenerClientes);
+// Ruta para obtener todos los clientes
+router.get('/clientes', getClientes);
 
-// Resto de rutas...
+// Ruta para crear un nuevo cliente
+router.post('/clientes', createCliente);
 
-module.exports = router;
+// Ruta para obtener un cliente por ID
+router.get('/clientes/:id', getCliente);
+
+export default router;
