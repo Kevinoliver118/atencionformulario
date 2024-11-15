@@ -1,29 +1,22 @@
-// src/backend/server.js
-import cors from 'cors';
 import express from 'express';
-import clienteRoutes from './routes/clienteRoutes.js'; // Rutas de cliente
+import bodyParser from 'body-parser';
+import clienteController from './controllers/clienteController.js';
+import cors from 'cors';
+import { db } from './database.js';
 
+// Configuración de Express
 const app = express();
-const port = 3000;
+const PORT = 3000;
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Habilitar CORS para permitir peticiones desde otros dominios
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
-// Usamos las rutas de clientes
-app.use(clienteRoutes);
+// Ruta para registrar el cliente
+app.post('/registrarCliente', clienteController.registrarCliente);
 
-// Ruta raíz de prueba
-app.get('/', (req, res) => {
-  res.send('¡Bienvenido a la API de AtencionFormulario!');
-});
-
-// Manejo de errores 404
-app.use((req, res) => {
-  res.status(404).send('Ruta no encontrada');
-});
-
-// Inicia el servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+// Iniciar el servidor
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

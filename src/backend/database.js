@@ -1,22 +1,14 @@
-// Importa el módulo mysql2
-import mysql from 'mysql2';
+import mysql from 'mysql2/promise'; // Importando con import
 
-// Crea una conexión a la base de datos
-const connection = mysql.createConnection({
-  host: 'localhost',      // Cambia esto por el host de tu base de datos
-  user: 'root',           // Tu nombre de usuario de MySQL
-  password: '',           // Tu contraseña de MySQL
-  database: 'cuscoinformatico',   // El nombre de tu base de datos
+// Crear la conexión a la base de datos
+const pool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'cuscoinformatico',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Verifica si la conexión fue exitosa
-connection.connect((err) => {
-  if (err) {
-    console.error('Error de conexión a la base de datos:', err.stack);
-    return;
-  }
-  console.log('Conexión a la base de datos exitosa');
-});
-
-// Exporta la conexión para usarla en otros archivos
-export default connection;
+export default pool; // Exportamos la conexión para usarla en otros archivos

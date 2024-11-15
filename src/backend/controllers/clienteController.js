@@ -1,47 +1,33 @@
-// src/backend/controllers/clienteController.js
+import { db } from '../database.js';
 
-import { addCliente, getAllClientes, getClienteById } from '../models/clienteModel.js';
+// Controlador para registrar un cliente
+const registrarCliente = (req, res) => {
+    const { nombre, ruc_dni, direccion } = req.body;
 
-// Obtener todos los clientes
-export const getClientes = (req, res) => {
-  getAllClientes((err, clientes) => {
-    if (err) {
-      console.error('Error al obtener clientes:', err);
-      return res.status(500).json({ error: 'Error al obtener los clientes' });
+    // Validar que los campos no estén vacíos
+    if (!nombre || !ruc_dni || !direccion) {
+        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
     }
-    res.json(clientes);
-  });
+
+    // Inserción de datos en la base de datos
+    const query = 'INSERT INTO clientes (nombre, ruc_dni, direccion) VALUES (?, ?, ?)';
+
+    db.query(query, [nombre, ruc_dni, direccion], (err, result) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                // Si el error es de duplicado, enviar un mensaje adecuado
+                return res.status(400).json({ message: 'El RUC o DNI ya está registrado en el sistema.' });
+            }
+            console.error('Error al registrar cliente:', err);
+            return res.status(500).json({ message: 'Hubo un error al registrar el cliente' });
+        }
+
+        // Respuesta exitosa con el ID del cliente insertado
+        res.status(201).json({
+            message: 'Cliente registrado correctamente',
+            clienteId: result.insertId,
+        });
+    });
 };
 
-// Agregar un nuevo cliente
-export const createCliente = (req, res) => {
-  const { name, number, service } = req.body;
-  
-  if (!name || !number || !service) {
-    return res.status(400).json({ error: 'Faltan datos en la solicitud' });
-  }
-
-  addCliente(name, number, service, (err, clientId) => {
-    if (err) {
-      console.error('Error al agregar cliente:', err);
-      return res.status(500).json({ error: 'Error al agregar cliente' });
-    }
-    res.status(201).json({ message: 'Cliente agregado con éxito', clientId });
-  });
-};
-
-// Obtener un cliente por ID
-export const getCliente = (req, res) => {
-  const { id } = req.params;
-  
-  getClienteById(id, (err, cliente) => {
-    if (err) {
-      console.error('Error al obtener cliente:', err);
-      return res.status(500).json({ error: 'Error al obtener el cliente' });
-    }
-    if (!cliente) {
-      return res.status(404).json({ error: 'Cliente no encontrado' });
-    }
-    res.json(cliente);
-  });
-};
+export default { registrarCliente };
