@@ -1,22 +1,20 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import clienteController from './controllers/clienteController.js';
 import cors from 'cors';
-import { db } from './database.js';
+import express from 'express';
+import { crearCliente, obtenerClientes } from './controllers/clienteController.js';
 
-// Configuración de Express
 const app = express();
-const PORT = 3000;
+const port = 5000;
 
 // Middleware
-app.use(cors()); // Habilitar CORS para permitir peticiones desde otros dominios
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(cors());
+app.use(express.json()); // Necesario para parsear JSON del cuerpo de la solicitud
 
-// Ruta para registrar el cliente
-app.post('/registrarCliente', clienteController.registrarCliente);
+// Ruta POST para registrar un cliente
+app.post('/registrarCliente', crearCliente);
 
-// Iniciar el servidor
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// Ruta GET para obtener todos los clientes
+app.get('/clientes', obtenerClientes);
+
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });

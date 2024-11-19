@@ -62,7 +62,8 @@ export default {
   methods: {
     async registrarCliente() {
       try {
-        const response = await fetch('http://localhost:3000/registrarCliente', {
+        const response = await fetch('http://localhost:5000/registrarCliente', {
+
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

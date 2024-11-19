@@ -1,33 +1,36 @@
-import { db } from '../database.js';
+import db from '../database.js'; // Importamos la conexión a la base de datos
 
-// Controlador para registrar un cliente
-const registrarCliente = (req, res) => {
-    const { nombre, ruc_dni, direccion } = req.body;
+// Crear un nuevo cliente
+export const crearCliente = async (req, res) => {
+    const { nombre, email, telefono } = req.body;
 
-    // Validar que los campos no estén vacíos
-    if (!nombre || !ruc_dni || !direccion) {
-        return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    try {
+        const connection = await db; // Esperamos que la conexión esté lista
+
+        // Consulta para insertar un nuevo cliente
+        const query = 'INSERT INTO clientes (nombre, email, telefono) VALUES (?, ?, ?)';
+        const [result] = await connection.execute(query, [nombre, email, telefono]);
+
+        // Respondemos con el ID del nuevo cliente insertado
+        res.status(200).json({ message: 'Cliente creado con éxito', clienteId: result.insertId });
+    } catch (err) {
+        console.error('Error al insertar cliente:', err);
+        res.status(500).json({ message: 'Error al guardar los datos del cliente' });
     }
-
-    // Inserción de datos en la base de datos
-    const query = 'INSERT INTO clientes (nombre, ruc_dni, direccion) VALUES (?, ?, ?)';
-
-    db.query(query, [nombre, ruc_dni, direccion], (err, result) => {
-        if (err) {
-            if (err.code === 'ER_DUP_ENTRY') {
-                // Si el error es de duplicado, enviar un mensaje adecuado
-                return res.status(400).json({ message: 'El RUC o DNI ya está registrado en el sistema.' });
-            }
-            console.error('Error al registrar cliente:', err);
-            return res.status(500).json({ message: 'Hubo un error al registrar el cliente' });
-        }
-
-        // Respuesta exitosa con el ID del cliente insertado
-        res.status(201).json({
-            message: 'Cliente registrado correctamente',
-            clienteId: result.insertId,
-        });
-    });
 };
 
-export default { registrarCliente };
+// Obtener todos los clientes
+export const obtenerClientes = async (req, res) => {
+    try {
+        const connection = await db; // Esperamos la conexión
+
+        // Consulta para obtener todos los clientes
+        const [rows] = await connection.execute('SELECT * FROM clientes');
+
+        // Respondemos con la lista de clientes
+        res.status(200).json(rows);
+    } catch (err) {
+        console.error('Error al obtener clientes:', err);
+        res.status(500).json({ message: 'Error al obtener los datos de los clientes' });
+    }
+};
