@@ -1,20 +1,24 @@
 import cors from 'cors';
 import express from 'express';
 import { crearCliente, obtenerClientes } from './controllers/clienteController.js';
+import { guardarEquipo, obtenerEquipos } from './controllers/equipoController.js'; // Importar el nuevo controlador de equipos
 
 const app = express();
 const port = 5000;
 
-// Middleware
+// Middleware para manejar CORS y solicitudes JSON
 app.use(cors());
-app.use(express.json()); // Necesario para parsear JSON del cuerpo de la solicitud
+app.use(express.json());
 
-// Ruta POST para registrar un cliente
-app.post('/registrarCliente', crearCliente);
+// Rutas para la API de clientes
+app.post('/api/clientes', crearCliente); // Ruta para crear un cliente
+app.get('/api/clientes', obtenerClientes); // Ruta para obtener todos los clientes
 
-// Ruta GET para obtener todos los clientes
-app.get('/clientes', obtenerClientes);
+// Rutas para la API de equipos
+app.post('/api/equipos', guardarEquipo); // Ruta para crear un equipo
+app.get('/api/equipos', obtenerEquipos); // Ruta para obtener todos los equipos
 
+// Iniciar el servidor
 app.listen(port, () => {
   console.log(`Servidor corriendo en http://localhost:${port}`);
 });

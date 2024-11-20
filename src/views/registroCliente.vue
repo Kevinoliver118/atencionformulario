@@ -1,48 +1,22 @@
 <template>
   <div>
-    <h2>Crear un nuevo Cliente</h2>
+    <h2>Registrar Cliente</h2>
     <form @submit.prevent="registrarCliente">
       <div>
-        <label for="nombre">Nombre y Apellido:</label>
-        <input
-          type="text"
-          id="nombre"
-          v-model="cliente.nombre"
-          placeholder="Nombre y Apellido del Cliente"
-          required
-        />
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" v-model="cliente.nombre" placeholder="Nombre" required />
       </div>
-
       <div>
-        <label for="rucDni">RUC o DNI:</label>
-        <input
-          type="text"
-          id="rucDni"
-          v-model="cliente.ruc_dni"
-          placeholder="DNI o RUC"
-          required
-        />
+        <label for="ruc_dni">RUC/DNI:</label>
+        <input type="text" id="ruc_dni" v-model="cliente.ruc_dni" placeholder="RUC o DNI" required />
       </div>
-
       <div>
         <label for="direccion">Dirección:</label>
-        <input
-          type="text"
-          id="direccion"
-          v-model="cliente.direccion"
-          placeholder="Dirección del Cliente"
-          required
-        />
+        <input type="text" id="direccion" v-model="cliente.direccion" placeholder="Dirección" required />
       </div>
-
-      <div>
-        <button type="submit">Guardar</button>
-        <button type="button" @click="vaciarFormulario">Vaciar</button>
-        <button type="button" @click="cancelar">Cancelar</button>
-      </div>
-
-      <p v-if="message" :class="messageType">{{ message }}</p>
+      <button type="submit">Registrar</button>
     </form>
+    <p v-if="message" :class="{ success: isSuccess, error: !isSuccess }">{{ message }}</p>
   </div>
 </template>
 
@@ -53,57 +27,50 @@ export default {
       cliente: {
         nombre: '',
         ruc_dni: '',
-        direccion: ''
+        direccion: '',
       },
       message: '',
-      messageType: ''
+      isSuccess: false,
     };
   },
   methods: {
     async registrarCliente() {
       try {
-        const response = await fetch('http://localhost:5000/registrarCliente', {
-
+        const response = await fetch('http://localhost:5000/api/clientes', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
           },
-          body: new URLSearchParams({
-            nombre: this.cliente.nombre,
-            ruc_dni: this.cliente.ruc_dni,
-            direccion: this.cliente.direccion,
-          }),
+          body: JSON.stringify(this.cliente),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          this.message = `Cliente registrado correctamente con ID: ${data.clienteId}`;
-          this.messageType = 'success';
+          this.message = 'Cliente registrado exitosamente.';
+          this.isSuccess = true;
         } else {
-          throw new Error(data.message);
+          throw new Error(data.message || 'Error al registrar cliente.');
         }
 
-        this.vaciarFormulario();
+        this.limpiarFormulario();
       } catch (error) {
-        this.message = 'Hubo un error al registrar el cliente.';
-        this.messageType = 'error';
+        this.message = error.message;
+        this.isSuccess = false;
       }
     },
-    vaciarFormulario() {
-      this.cliente.nombre = '';
-      this.cliente.ruc_dni = '';
-      this.cliente.direccion = '';
-      this.message = '';
-      this.messageType = '';
+    limpiarFormulario() {
+      this.cliente = { nombre: '', ruc_dni: '', direccion: '' };
     },
-    cancelar() {
-      this.vaciarFormulario();
-    }
-  }
+  },
 };
 </script>
 
 <style scoped>
-/* Aquí puedes agregar tus estilos si lo deseas */
+.success {
+  color: green;
+}
+.error {
+  color: red;
+}
 </style>

@@ -1,36 +1,50 @@
-import db from '../database.js'; // Importamos la conexión a la base de datos
+import db from '../database.js';
 
 // Crear un nuevo cliente
 export const crearCliente = async (req, res) => {
-    const { nombre, email, telefono } = req.body;
+  const { nombre, ruc_dni, direccion } = req.body;
 
-    try {
-        const connection = await db; // Esperamos que la conexión esté lista
+  if (!nombre || !ruc_dni || !direccion) {
+    return res.status(400).json({
+      message: 'Todos los campos son obligatorios. Por favor, completa todos los campos.',
+    });
+  }
 
-        // Consulta para insertar un nuevo cliente
-        const query = 'INSERT INTO clientes (nombre, email, telefono) VALUES (?, ?, ?)';
-        const [result] = await connection.execute(query, [nombre, email, telefono]);
+  try {
+    const connection = await db.getConnection(); // Obtiene una conexión del pool
+    const query = 'INSERT INTO clientes (nombre, ruc_dni, direccion) VALUES (?, ?, ?)';
+    const [result] = await connection.execute(query, [nombre, ruc_dni, direccion]);
 
-        // Respondemos con el ID del nuevo cliente insertado
-        res.status(200).json({ message: 'Cliente creado con éxito', clienteId: result.insertId });
-    } catch (err) {
-        console.error('Error al insertar cliente:', err);
-        res.status(500).json({ message: 'Error al guardar los datos del cliente' });
-    }
+    connection.release(); // Libera la conexión al pool
+
+    return res.status(201).json({
+      message: 'Cliente creado con éxito',
+      clienteId: result.insertId,
+    });
+  } catch (error) {
+    console.error('Error al insertar cliente:', error);
+    return res.status(500).json({
+      message: 'Error al guardar los datos del cliente',
+      errorDetails: error.message,
+    });
+  }
 };
 
 // Obtener todos los clientes
 export const obtenerClientes = async (req, res) => {
-    try {
-        const connection = await db; // Esperamos la conexión
+  try {
+    const connection = await db.getConnection(); // Obtiene una conexión del pool
+    const query = 'SELECT * FROM clientes';
+    const [rows] = await connection.execute(query);
 
-        // Consulta para obtener todos los clientes
-        const [rows] = await connection.execute('SELECT * FROM clientes');
+    connection.release(); // Libera la conexión al pool
 
-        // Respondemos con la lista de clientes
-        res.status(200).json(rows);
-    } catch (err) {
-        console.error('Error al obtener clientes:', err);
-        res.status(500).json({ message: 'Error al obtener los datos de los clientes' });
-    }
+    return res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error al obtener clientes:', error);
+    return res.status(500).json({
+      message: 'Error al obtener los datos de los clientes',
+      errorDetails: error.message,
+    });
+  }
 };
