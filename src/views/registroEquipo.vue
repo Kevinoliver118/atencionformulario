@@ -1,267 +1,226 @@
 <template>
-    <div class="registro-equipo">
-      <h1>Registro de Equipo</h1>
-      <form @submit.prevent="guardarEquipo">
-        <!-- Tipo de equipo -->
-        <label for="tipo-equipo">Tipo de Equipo</label>
-        <select id="tipo-equipo" v-model="equipo.tipo" @change="actualizarMarcasModelos">
-          <option value="" disabled>Seleccione un tipo</option>
-          <option value="computadora">Computadora</option>
-          <option value="impresora">Impresora</option>
-          <option value="router">Router</option>
-          <option value="otro">Otro</option>
-        </select>
-  
-        <!-- Marca -->
-        <label for="marca">Marca</label>
-        <input
-          type="text"
-          id="marca"
-          v-model="equipo.marca"
-          placeholder="Ingrese la marca del equipo"
-          @input="filtrarMarcas"
-        />
-        <ul v-if="marcasFiltradas.length && equipo.marca">
-          <li
-            v-for="(marca, index) in marcasFiltradas"
-            :key="index"
-            @click="seleccionarMarca(marca)"
-          >
-            {{ marca }}
-          </li>
-        </ul>
-  
-        <!-- Modelo -->
-        <label for="modelo">Modelo</label>
-        <input
-          type="text"
-          id="modelo"
-          v-model="equipo.modelo"
-          placeholder="Ingrese el modelo del equipo"
-          @input="filtrarModelos"
-        />
-        <ul v-if="modelosFiltrados.length && equipo.modelo">
-          <li
-            v-for="(modelo, index) in modelosFiltrados"
-            :key="index"
-            @click="seleccionarModelo(modelo)"
-          >
-            {{ modelo }}
-          </li>
-        </ul>
-  
-        <!-- Número de serie -->
-        <label for="numero-serie">Número de Serie</label>
-        <input
-          type="text"
-          id="numero-serie"
-          v-model="equipo.numeroSerie"
-          placeholder="Ingrese el número de serie"
-        />
-  
-        <!-- Motivo de ingreso -->
-        <label for="motivo-ingreso">Motivo de Ingreso</label>
-        <textarea
-          id="motivo-ingreso"
-          v-model="equipo.motivoIngreso"
-          placeholder="Describa el motivo de ingreso"
-        ></textarea>
-  
-        <!-- Accesorios -->
-        <label>Accesorios</label>
+    <div>
+      <h2>Registrar Equipo</h2>
+      <form @submit.prevent="registrarEquipo">
+        <!-- Tipo de Equipo -->
         <div>
-          <label>
-            <input type="checkbox" v-model="equipo.accesorios" value="Cable" /> Cable
-          </label>
-          <label>
-            <input type="checkbox" v-model="equipo.accesorios" value="Cargador" /> Cargador
-          </label>
-          <label>
-            <input type="checkbox" v-model="equipo.accesorios" value="Funda" /> Funda
-          </label>
-          <label>
-            <input type="checkbox" v-model="equipo.accesorios" value="Mouse" /> Mouse
-          </label>
-          <label>
-            <input type="checkbox" v-model="equipo.accesorios" value="Otros" /> Otros
-          </label>
+          <label for="tipo">Tipo de equipo:</label>
+          <select v-model="equipo.tipo" @change="actualizarMarcas" id="tipo" required>
+            <option v-for="tipo in tipos" :key="tipo.value" :value="tipo.value">{{ tipo.label }}</option>
+          </select>
         </div>
   
-        <!-- Botón para agregar accesorios personalizados -->
-        <button type="button" @click="agregarAccesorio">Agregar Accesorio</button>
+        <!-- Marca del equipo -->
+        <div v-if="equipo.tipo">
+          <label for="marca">Marca:</label>
+          <input type="text" id="marca" v-model="equipo.marca" @input="actualizarModelos" placeholder="Escribe o selecciona marca" list="marca-list" required />
+          <datalist id="marca-list">
+            <option v-for="marca in marcas" :key="marca.marca" :value="marca.marca"></option>
+          </datalist>
+        </div>
   
-        <!-- Mostrar accesorios personalizados -->
-        <ul>
-          <li v-for="(accesorio, index) in equipo.accesoriosExtra" :key="index">
-            {{ accesorio }}
-          </li>
-        </ul>
+        <!-- Modelo del equipo -->
+        <div v-if="equipo.marca">
+          <label for="modelo">Modelo:</label>
+          <input type="text" id="modelo" v-model="equipo.modelo" @input="filtrarModelos" placeholder="Escribe o selecciona modelo" list="modelo-list" required />
+          <datalist id="modelo-list">
+            <option v-for="modelo in modelosFiltrados" :key="modelo" :value="modelo"></option>
+          </datalist>
+        </div>
   
-        <!-- Descripción -->
-        <label for="descripcion">Descripción</label>
-        <textarea
-          id="descripcion"
-          v-model="equipo.descripcion"
-          placeholder="Ingrese una descripción detallada del equipo"
-        ></textarea>
+        <!-- Número de serie -->
+        <div>
+          <label for="numeroSerie">Número de Serie:</label>
+          <input type="text" id="numeroSerie" v-model="equipo.numeroSerie" placeholder="Número de Serie" required />
+        </div>
+  
+        <!-- Motivo de ingreso -->
+        <div>
+          <label for="motivoIngreso">Motivo de Ingreso:</label>
+          <textarea id="motivoIngreso" v-model="equipo.motivoIngreso" placeholder="Describe el motivo de ingreso" rows="4" required></textarea>
+        </div>
+  
+        <!-- Accesorios -->
+        <div>
+          <label>Accesorios:</label>
+          <div v-for="(accesorio, index) in accesorios" :key="index">
+            <label>
+              <input type="checkbox" :value="accesorio" v-model="equipo.accesorios" />
+              {{ accesorio }}
+            </label>
+          </div>
+          <label>
+            <input type="checkbox" value="Otro" v-model="equipo.accesorios" @change="agregarAccesorio" /> Otro
+          </label>
+          <div v-if="equipo.accesorios.includes('Otro')">
+            <input type="text" v-model="nuevoAccesorio" placeholder="Especifica otro accesorio" />
+            <button type="button" @click="agregarOtroAccesorio">Agregar</button>
+          </div>
+        </div>
+  
+        <!-- Observaciones -->
+        <div>
+          <label for="observaciones">Observaciones:</label>
+          <textarea id="observaciones" v-model="equipo.observaciones" placeholder="Detalles adicionales sobre el equipo" rows="4"></textarea>
+        </div>
   
         <!-- Precio -->
-        <label for="precio">Precio</label>
-        <input
-          type="number"
-          id="precio"
-          v-model="equipo.precio"
-          placeholder="Ingrese el precio estimado"
-        />
+        <div>
+          <label for="precio">Precio (S/):</label>
+          <input type="number" id="precio" v-model="equipo.precio" placeholder="Precio" required />
+        </div>
   
-        <!-- Botones de acción -->
-        <button type="submit">Guardar Equipo</button>
-        <button type="button" @click="cancelar">Cancelar</button>
+        <!-- Cliente -->
+        <div>
+          <label for="clienteId">ID del Cliente:</label>
+          <select v-model="equipo.clienteId" @change="actualizarClienteId" id="clienteId" required>
+            <option v-for="cliente in clientes" :key="cliente.id" :value="cliente.id">{{ cliente.nombre }}</option>
+          </select>
+        </div>
+  
+        <button type="submit">Registrar</button>
       </form>
+  
+      <p v-if="message" :class="{ success: isSuccess, error: !isSuccess }">{{ message }}</p>
     </div>
   </template>
   
   <script>
- import axios from 'axios'; // Asegúrate de tener axios instalado
-
-import datosEquipos from "@/data/datosEquipos.js";
-
-export default {
-  data() {
-    return {
-      equipo: {
-        tipo: '',
-        marca: '',
-        modelo: '',
-        numeroSerie: '',
-        motivoIngreso: '',
-        accesorios: [], // Para almacenar los accesorios seleccionados
-        accesoriosExtra: [], // Para accesorios personalizados
-        descripcion: '',
-        precio: '', // Campo adicional para el precio
-        clienteId: 1, // Asegúrate de obtener el clienteID de alguna parte si es necesario
-      },
-      marcasFiltradas: [],
-      modelosFiltrados: [],
-      marcasDisponibles: [],
-      modelosDisponibles: [],
-    };
-  },
-  watch: {
-    // Actualizamos los modelos disponibles cada vez que se selecciona un tipo
-    'equipo.tipo': function(newTipo) {
-      this.marcasDisponibles = datosEquipos.marcasYModelos[newTipo] || [];
-      this.marcasFiltradas = this.marcasDisponibles.map(item => item.marca);
-      this.modelosFiltrados = [];
-      this.equipo.marca = '';
-      this.equipo.modelo = '';
-    },
-  },
-  methods: {
-    actualizarMarcasModelos() {
-      if (this.equipo.tipo) {
-        this.marcasDisponibles = datosEquipos.marcasYModelos[this.equipo.tipo] || [];
-        this.marcasFiltradas = this.marcasDisponibles.map(item => item.marca);
-        this.modelosFiltrados = [];
-      }
-    },
-    filtrarMarcas() {
-      if (this.equipo.marca) {
-        this.marcasFiltradas = this.marcasDisponibles
-          .filter(marca => marca.marca.toLowerCase().includes(this.equipo.marca.toLowerCase()))
-          .map(marca => marca.marca);
-      } else {
-        this.marcasFiltradas = this.marcasDisponibles.map(marca => marca.marca);
-      }
-    },
-    seleccionarMarca(marca) {
-      this.equipo.marca = marca;
-      this.modelosFiltrados = this.marcasDisponibles
-        .find(item => item.marca === marca).modelos;
-    },
-    filtrarModelos() {
-      if (this.equipo.modelo) {
-        this.modelosFiltrados = this.modelosDisponibles.filter(modelo =>
-          modelo.toLowerCase().includes(this.equipo.modelo.toLowerCase())
-        );
-      }
-    },
-    seleccionarModelo(modelo) {
-      this.equipo.modelo = modelo;
-    },
-    async guardarEquipo() {
-      if (
-        this.equipo.tipo &&
-        this.equipo.marca &&
-        this.equipo.modelo &&
-        this.equipo.numeroSerie &&
-        this.equipo.motivoIngreso &&
-        this.equipo.descripcion &&
-        this.equipo.precio
-      ) {
-        try {
-          // Hacemos la solicitud POST al backend para guardar el equipo
-          const response = await axios.post('http://localhost:5000/api/equipos', this.equipo);
-          
-          if (response.status === 201) {
-            console.log('Equipo guardado:', response.data);
-            alert('Equipo guardado con éxito.');
-            this.limpiarFormulario();
-          }
-        } catch (error) {
-          console.error('Error al guardar el equipo:', error);
-          alert('Hubo un problema al guardar el equipo. Intenta nuevamente.');
-        }
-      } else {
-        alert('Por favor complete todos los campos obligatorios.');
-      }
-    },
-    agregarAccesorio() {
-      const nuevoAccesorio = prompt('Ingrese el nombre del accesorio:');
-      if (nuevoAccesorio) {
-        this.equipo.accesoriosExtra.push(nuevoAccesorio);
-      }
-    },
-    cancelar() {
-      this.limpiarFormulario();
-      this.$router.push({ name: 'home' }); // Cambiar a la ruta principal u otra
-    },
-    limpiarFormulario() {
-      this.equipo = {
-        tipo: '',
-        marca: '',
-        modelo: '',
-        numeroSerie: '',
-        motivoIngreso: '',
-        accesorios: [],
-        accesoriosExtra: [],
-        descripcion: '',
-        precio: '',
+  import datosEquipos from '@/data/datosEquipos.js'; // Importa el archivo de datos
+  
+  export default {
+    data() {
+      return {
+        tipos: datosEquipos.tipos,
+        equiposData: datosEquipos.marcasYModelos,
+        equipo: {
+          tipo: '',
+          marca: '',
+          modelo: '',
+          numeroSerie: '',
+          motivoIngreso: '',
+          accesorios: [],
+          observaciones: '',
+          precio: '',
+          clienteId: ''
+        },
+        marcas: [],
+        modelosFiltrados: [],
+        accesorios: ['Cable', 'Cargador', 'Con funda', 'Con mouse'], // Accesorios predeterminados
+        nuevoAccesorio: '',
+        clientes: [],
+        message: '',
+        isSuccess: false,
       };
     },
-  },
-};
+    created() {
+      this.cargarClientes();
+    },
+    methods: {
+      // Función para obtener la lista de clientes desde la API
+      async cargarClientes() {
+        try {
+          const response = await fetch('http://localhost:5000/api/clientes');
+          const data = await response.json();
+  
+          if (response.ok) {
+            this.clientes = data;
+          } else {
+            throw new Error(data.error || 'Error al cargar los clientes');
+          }
+        } catch (error) {
+          console.error('Error al cargar los clientes', error);
+        }
+      },
+  
+      // Funciones de actualización de marcas y modelos
+      actualizarMarcas() {
+        this.marcas = this.equiposData[this.equipo.tipo] || [];
+        this.modelosFiltrados = []; // Limpiar modelos al cambiar el tipo
+        this.equipo.marca = ''; // Resetear la marca
+        this.equipo.modelo = ''; // Resetear el modelo
+      },
+      actualizarModelos() {
+        if (this.equipo.marca && !this.marcas.some(m => m.marca.toLowerCase() === this.equipo.marca.toLowerCase())) {
+          this.marcas.push({ marca: this.equipo.marca });
+        }
+        this.filtrarModelos(); // Filtrar modelos después de actualizar la marca
+      },
+      filtrarModelos() {
+        if (this.equipo.marca) {
+          const marcaSeleccionada = this.equiposData[this.equipo.tipo]?.find(
+            (m) => m.marca.toLowerCase() === this.equipo.marca.toLowerCase()
+          );
+          this.modelosFiltrados = marcaSeleccionada ? marcaSeleccionada.modelos : [];
+        } else {
+          this.modelosFiltrados = [];
+        }
+      },
+  
+      // Funciones de accesorios
+      agregarAccesorio() {
+        if (this.equipo.accesorios.includes('Otro') && this.nuevoAccesorio) {
+          this.equipo.accesorios.push(this.nuevoAccesorio);
+          this.nuevoAccesorio = ''; // Limpiar campo de otro accesorio
+        }
+      },
+      agregarOtroAccesorio() {
+        if (this.nuevoAccesorio && !this.equipo.accesorios.includes(this.nuevoAccesorio)) {
+          this.equipo.accesorios.push(this.nuevoAccesorio);
+          this.nuevoAccesorio = ''; // Limpiar campo
+        }
+      },
+  
+      // Función para registrar el equipo
+      async registrarEquipo() {
+        try {
+          const response = await fetch('http://localhost:5000/api/equipos', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.equipo),
+          });
+  
+          const data = await response.json();
+  
+          if (response.ok) {
+            this.message = 'Equipo registrado correctamente.';
+            this.isSuccess = true;
+          } else {
+            throw new Error(data.error || 'Error al registrar equipo.');
+          }
+  
+          this.limpiarFormulario();
+        } catch (error) {
+          this.message = error.message;
+          this.isSuccess = false;
+        }
+      },
+  
+      limpiarFormulario() {
+        this.equipo = {
+          tipo: '',
+          marca: '',
+          modelo: '',
+          numeroSerie: '',
+          motivoIngreso: '',
+          accesorios: [],
+          observaciones: '',
+          precio: '',
+          clienteId: ''
+        };
+      }
+    }
+  };
   </script>
   
   <style scoped>
-  /* Aquí puedes agregar estilos específicos para la lista de sugerencias */
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    background-color: white;
-    border: 1px solid #ccc;
-    max-height: 150px;
-    overflow-y: auto;
+  .success {
+    color: green;
   }
-  
-  ul li {
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  ul li:hover {
-    background-color: #f0f0f0;
+  .error {
+    color: red;
   }
   </style>
   
